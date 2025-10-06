@@ -1,0 +1,14 @@
+# Railway Configuration
+# https://docs.railway.app/deploy/deployments
+
+[build]
+builder = "NIXPACKS"
+# Tell Railway where the app is located
+workingDirectory = "nexero-backend"
+
+[deploy]
+startCommand = "cd nexero-backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

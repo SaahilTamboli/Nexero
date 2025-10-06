@@ -1,0 +1,54 @@
+# Nexero VR Backend - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# ==============================================================================
+# CORE WEB FRAMEWORK
+# ==============================================================================
+# FastAPI - Modern, fast web framework for building APIs
+fastapi>=0.104.0
+
+# Uvicorn - ASGI server with WebSocket support
+uvicorn[standard]>=0.24.0
+
+# Pydantic - Data validation and settings management
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# ==============================================================================
+# DATABASE
+# ==============================================================================
+# Supabase - Python client for Supabase (PostgreSQL)
+supabase>=2.0.0
+
+# ==============================================================================
+# UTILITIES
+# ==============================================================================
+# Python-dotenv - Load environment variables from .env files
+python-dotenv>=1.0.0
+
+# Python-multipart - Form data and file upload support
+python-multipart>=0.0.6
+
+# ==============================================================================
+# DEVELOPMENT & TESTING
+# ==============================================================================
+# Pytest - Testing framework
+pytest>=7.4.0
+
+# Pytest-asyncio - Async test support for pytest
+pytest-asyncio>=0.21.0
+
+# HTTPX - HTTP client for testing FastAPI endpoints
+httpx>=0.25.0
+
+# ==============================================================================
+# OPTIONAL (Uncomment if needed)
+# ==============================================================================
+# python-jose[cryptography]>=3.3.0  # JWT token handling
+# passlib[bcrypt]>=1.7.4  # Password hashing
+# sqlalchemy>=2.0.0  # ORM (if not using Supabase client directly)
+# alembic>=1.12.0  # Database migrations
+# redis>=5.0.0  # Caching
+# celery>=5.3.0  # Background tasks
+# pandas>=2.1.0  # Data analysis
+# numpy>=1.26.0  # Numerical computing
