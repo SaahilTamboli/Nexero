@@ -150,9 +150,14 @@ local_settings.py
 docs/_build/
 site/
 
+# Specific project files
+GITHUB_STATUS.md
+DEPLOYMENT_OPTIONS.md
+
 # ==============================================================================
 # DEPENDENCIES
 # ==============================================================================
 node_modules/
 package-lock.json
 yarn.lock
+
