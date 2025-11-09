@@ -14,37 +14,55 @@ Models:
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Optional, Union
+from pydantic import BaseModel, Field, field_validator
 
 
 class UnrealSessionData(BaseModel):
     """
     Session metadata sent from Unreal Engine when VR tour starts/ends.
     
-    This model is backward compatible with test formats where timestamps
-    are sent as Unix timestamp strings. The backend will convert these
-    to proper datetime objects for database storage.
+    This model accepts timestamps as either strings or numbers for maximum
+    compatibility with different Unreal Engine HTTP libraries (VaRest, etc).
+    The backend will automatically convert these to proper datetime objects
+    for database storage.
     
     Attributes:
-        session_start: Unix timestamp as string (e.g., "1727653800")
-        session_end: Unix timestamp as string (e.g., "1727654100")
+        session_start: Unix timestamp as string or number (e.g., "1727653800" or 1727653800)
+        session_end: Unix timestamp as string or number (e.g., "1727654100" or 1727654100)
         customer_id: Optional customer identifier
         property_id: Optional property/listing identifier
         
-    Example from Unreal:
+    Examples from Unreal:
+        String format (test client):
         {
             "session_start": "1727653800",
             "session_end": "1727654100",
             "customer_id": "cust_12345",
             "property_id": "prop_67890"
         }
+        
+        Number format (VaRest plugin):
+        {
+            "session_start": 1727653800,
+            "session_end": 1727654100,
+            "customer_id": "cust_12345",
+            "property_id": "prop_67890"
+        }
     """
     
-    session_start: str  # Unix timestamp as string
-    session_end: str    # Unix timestamp as string
+    session_start: Union[str, int, float]  # Unix timestamp as string or number
+    session_end: Union[str, int, float]    # Unix timestamp as string or number
     customer_id: Optional[str] = None
     property_id: Optional[str] = None
+    
+    @field_validator('session_start', 'session_end', mode='before')
+    @classmethod
+    def convert_to_string(cls, v):
+        """Convert numeric timestamps to strings for consistent processing."""
+        if isinstance(v, (int, float)):
+            return str(int(v))  # Convert to string, removing decimal if present
+        return v
     
     class Config:
         json_schema_extra = {
