@@ -131,7 +131,6 @@ async def receive_session_data(
         logger.info(f"  session_end: {session_data.session_end} (type: {type(session_data.session_end).__name__})")
         logger.info(f"  customer_id: {session_data.customer_id}")
         logger.info(f"  property_id: {session_data.property_id}")
-        logger.info(f"  device_type: {session_data.device_type}")
         logger.info("="*70)
         
         # Process session data through service layer
