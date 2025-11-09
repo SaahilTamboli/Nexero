@@ -37,12 +37,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from typing import Callable
 
 from app.api.v1.unreal import router as unreal_router
 from app.config import get_settings
 from app.core.database import SupabaseDB
 
-# Configure logging with timestamps
+# Configure logging with timest
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -112,6 +113,33 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
+
+# Middleware: Log raw request body for debugging incoming Unreal payloads
+@app.middleware("http")
+async def log_raw_request_body(request: Request, call_next: Callable):
+    try:
+        # Only log API requests to reduce noise
+        if request.url.path.startswith("/api/v1"):
+            body_bytes = await request.body()
+            # Try to decode as UTF-8 for readable logging
+            try:
+                body_text = body_bytes.decode("utf-8") if body_bytes else ""
+            except Exception:
+                body_text = str(body_bytes)
+
+            logger.info("📥 [RAW REQUEST] %s %s -> %s", request.method, request.url.path, body_text)
+
+            # Recreate receive function so downstream can read body again
+            async def receive() -> dict:
+                return {"type": "http.request", "body": body_bytes}
+
+            request._receive = receive  # type: ignore[attr-defined]
+
+    except Exception as e:
+        logger.warning(f"Failed to log raw request body: {e}")
+
+    response = await call_next(request)
+    return response
 
 # Include API routers
 app.include_router(
