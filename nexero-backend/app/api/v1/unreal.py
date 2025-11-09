@@ -124,11 +124,15 @@ async def receive_session_data(
         }
     """
     try:
-        logger.info(
-            f"Received session data from Unreal: "
-            f"customer={session_data.customer_id}, "
-            f"property={session_data.property_id}"
-        )
+        # Log the RAW data received (before processing)
+        logger.info("="*70)
+        logger.info("📥 INCOMING SESSION DATA FROM CLIENT:")
+        logger.info(f"  session_start: {session_data.session_start} (type: {type(session_data.session_start).__name__})")
+        logger.info(f"  session_end: {session_data.session_end} (type: {type(session_data.session_end).__name__})")
+        logger.info(f"  customer_id: {session_data.customer_id}")
+        logger.info(f"  property_id: {session_data.property_id}")
+        logger.info(f"  device_type: {session_data.device_type}")
+        logger.info("="*70)
         
         # Process session data through service layer
         session = await session_service.process_unreal_session_data(
@@ -203,6 +207,15 @@ async def receive_tracking_event(
         }
     """
     try:
+        # Log the RAW event data received
+        logger.info("="*70)
+        logger.info("📥 INCOMING TRACKING EVENT FROM CLIENT:")
+        logger.info(f"  event_type: {event.event_type}")
+        logger.info(f"  timestamp: {event.timestamp} (type: {type(event.timestamp).__name__})")
+        logger.info(f"  session_id: {event.session_id}")
+        logger.info(f"  event_data: {event.event_data}")
+        logger.info("="*70)
+        
         # Validate session_id is present
         if not event.session_id:
             logger.warning("Tracking event received without session_id")
@@ -284,10 +297,16 @@ async def receive_tracking_batch(
         }
     """
     try:
-        logger.info(
-            f"Received tracking batch: session={batch.session_id}, "
-            f"events_count={len(batch.events)}"
-        )
+        # Log the RAW batch data received
+        logger.info("="*70)
+        logger.info("📥 INCOMING TRACKING BATCH FROM CLIENT:")
+        logger.info(f"  session_id: {batch.session_id}")
+        logger.info(f"  sent_at: {batch.sent_at} (type: {type(batch.sent_at).__name__})")
+        logger.info(f"  events_count: {len(batch.events)}")
+        logger.info(f"  First 3 events preview:")
+        for i, event in enumerate(batch.events[:3], 1):
+            logger.info(f"    Event {i}: type={event.event_type}, timestamp={event.timestamp}")
+        logger.info("="*70)
         
         # Convert Pydantic models to dicts
         events_list = [event.model_dump() for event in batch.events]
