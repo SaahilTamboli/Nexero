@@ -154,6 +154,10 @@ site/
 GITHUB_STATUS.md
 DEPLOYMENT_OPTIONS.md
 
+# Documentation and troubleshooting guides
+*.md
+!README.md
+
 # ==============================================================================
 # DEPENDENCIES
 # ==============================================================================
