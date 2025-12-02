@@ -186,10 +186,14 @@ async def receive_session_data(
             # Parse duration string to seconds (e.g., "1:30" → 90)
             duration_seconds = _parse_duration_to_seconds(validated_poi.POI_Duration)
             
+            # Get POI source (could be POI_Source or Source field)
+            poi_source = validated_poi.POI_Source or validated_poi.Source or ""
+            
             # Build record for poi_visits table
             poi_record = {
                 "poi_name": validated_poi.POI,
                 "parent_zone": validated_poi.Parent,
+                "poi_source": poi_source,
                 "duration_string": validated_poi.POI_Duration,
                 "duration_seconds": duration_seconds,
                 "received_at": datetime.now(timezone.utc).isoformat()
@@ -197,7 +201,7 @@ async def receive_session_data(
             
             try:
                 db.client.table("poi_visits").insert(poi_record).execute()
-                logger.info(f"✅ POI validated and stored: {validated_poi.Parent}/{validated_poi.POI} ({duration_seconds}s)")
+                logger.info(f"✅ POI validated and stored: {validated_poi.Parent}/{validated_poi.POI} ({duration_seconds}s) [source: {poi_source}]")
             except Exception as db_error:
                 logger.warning(f"Could not store POI in poi_visits: {db_error}")
                 # Fallback to simple_events

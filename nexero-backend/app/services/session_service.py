@@ -37,6 +37,17 @@ from app.core.database import SupabaseDB
 logger = logging.getLogger(__name__)
 
 
+# Date formats Unreal might send
+DATE_FORMATS = [
+    "%d-%b-%Y, %I:%M:%S %p",  # "02-Dec-2025, 2:54:12 pm"
+    "%d-%b-%Y, %I:%M:%S%p",   # "02-Dec-2025, 2:54:12pm"
+    "%Y-%m-%d %H:%M:%S",       # "2025-12-02 14:54:12"
+    "%Y-%m-%dT%H:%M:%S",       # "2025-12-02T14:54:12"
+    "%Y-%m-%dT%H:%M:%S.%f",    # "2025-12-02T14:54:12.000"
+    "%Y-%m-%dT%H:%M:%S%z",     # "2025-12-02T14:54:12+00:00"
+]
+
+
 class SessionService:
     """
     Service layer for VR session management.
@@ -58,6 +69,45 @@ class SessionService:
         """
         self.db = db
         logger.info("SessionService initialized")
+    
+    def _parse_timestamp(self, timestamp_str: str) -> datetime:
+        """
+        Parse timestamp string in various formats to datetime.
+        
+        Supports:
+        - Unix timestamp: "1733148852" or 1733148852
+        - Human readable: "02-Dec-2025, 2:54:12 pm"
+        - ISO format: "2025-12-02T14:54:12"
+        
+        Args:
+            timestamp_str: Timestamp as string or number
+            
+        Returns:
+            datetime: Parsed datetime with UTC timezone
+            
+        Raises:
+            ValueError: If timestamp cannot be parsed
+        """
+        # Handle numeric string (Unix timestamp)
+        try:
+            timestamp_float = float(timestamp_str)
+            return datetime.fromtimestamp(timestamp_float, tz=timezone.utc)
+        except (ValueError, TypeError):
+            pass
+        
+        # Try various date formats
+        for fmt in DATE_FORMATS:
+            try:
+                dt = datetime.strptime(str(timestamp_str), fmt)
+                # Add UTC timezone if not present
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt
+            except ValueError:
+                continue
+        
+        # Nothing worked
+        raise ValueError(f"Could not parse timestamp: {timestamp_str}")
     
     async def start_session(
         self,
@@ -281,15 +331,9 @@ class SessionService:
             print(f"Duration: {session['duration_seconds']}s")
         """
         try:
-            # Convert Unix timestamp strings to datetime objects
-            started_at = datetime.fromtimestamp(
-                float(session_start),
-                tz=timezone.utc
-            )
-            ended_at = datetime.fromtimestamp(
-                float(session_end),
-                tz=timezone.utc
-            )
+            # Try to parse timestamps - support multiple formats
+            started_at = self._parse_timestamp(session_start)
+            ended_at = self._parse_timestamp(session_end)
             
             logger.info(
                 f"Processing Unreal session data: "

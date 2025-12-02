@@ -90,12 +90,15 @@ class POIData(BaseModel):
         POI: Name of the specific point of interest (can be empty string)
         Parent: Parent category/zone (e.g., "Amenities", "Unit_A", "Floor_2")
         POI_Duration: Time spent in this POI as string (e.g., "0:02" for 2 seconds)
+        POI_Source: Source of POI interaction (e.g., "Floating", "NavBar")
+        Source: Alternative name for POI_Source (backward compatibility)
         session_id: Optional session identifier for linking
         
     Example from Unreal:
         {
-            "POI": "Kitchen",
-            "Parent": "Unit_A",
+            "POI": "Gym",
+            "POI_Source": "Floating",
+            "Parent": "Amenities",
             "POI_Duration": "0:45"
         }
     """
@@ -103,6 +106,8 @@ class POIData(BaseModel):
     POI: str = ""  # Can be empty string
     Parent: str
     POI_Duration: str  # Format: "M:SS" like "0:02", "1:30"
+    POI_Source: Optional[str] = None  # "Floating", "NavBar", etc.
+    Source: Optional[str] = None  # Alternative field name
     session_id: Optional[str] = None
     
     @field_validator('POI_Duration', mode='before')
