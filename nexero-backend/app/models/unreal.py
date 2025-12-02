@@ -168,6 +168,60 @@ class TrackingEventFromUnreal(BaseModel):
         }
 
 
+class FlexibleEventData(BaseModel):
+    """
+    Flexible event model that accepts ANY event type from Unreal Engine.
+    
+    This model is designed to be maximally flexible - it only requires
+    an event_type field and accepts any additional data as metadata.
+    Perfect for UI events (NavBar_Click, Button_Press, etc.) that
+    don't fit the structured tracking event format.
+    
+    Attributes:
+        event_type: Required - type of event (e.g., "NavBar_Click", "Menu_Open")
+        timestamp: Optional - Unix timestamp as string, int, or float
+        session_id: Optional - session identifier
+        **extra fields: Any additional fields are captured in model_extra
+        
+    Example NavBar click:
+        {
+            "event_type": "NavBar_Click",
+            "Menu_Item": "Amenities",
+            "timestamp": "1764540726"
+        }
+        
+    Example button press:
+        {
+            "event_type": "Button_Press",
+            "button_name": "Floor_Select",
+            "floor_number": 3
+        }
+    """
+    
+    event_type: str
+    timestamp: Optional[Union[str, int, float]] = None
+    session_id: Optional[str] = None
+    
+    class Config:
+        # Allow any extra fields to be captured
+        extra = "allow"
+        json_schema_extra = {
+            "examples": [
+                {
+                    "event_type": "NavBar_Click",
+                    "Menu_Item": "Amenities",
+                    "timestamp": "1764540726"
+                },
+                {
+                    "event_type": "Button_Press",
+                    "button_name": "Floor_Select",
+                    "floor_number": 3,
+                    "session_id": "session_abc123"
+                }
+            ]
+        }
+
+
 class TrackingBatchFromUnreal(BaseModel):
     """
     Batch of tracking events sent together from Unreal Engine.

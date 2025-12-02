@@ -1,0 +1,288 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    GITHUB FOR DESIGNERS (NON-CODERS)
+                         Simple Crash Course
+═══════════════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════════════
+THE BASIC CONCEPT
+═══════════════════════════════════════════════════════════════════════════════
+
+Think of GitHub Like Google Docs, But for Game Files
+
+Local Computer (Your Work) ←→ GitHub (Cloud Storage)
+
+Like:
+- Your computer = Your draft
+- GitHub = Final copy everyone sees
+- Commit = Save your changes
+- Push = Upload to cloud
+- Pull = Download others' changes
+
+═══════════════════════════════════════════════════════════════════════════════
+🚨 THE GOLDEN RULE 🚨
+═══════════════════════════════════════════════════════════════════════════════
+
+ALWAYS Do This Before Starting Work:
+
+1. Open GitHub Desktop
+2. Click "Fetch origin" (top right)
+3. If it says "Pull origin" - CLICK IT!
+4. NOW start working in Unreal
+
+Why? This downloads everyone else's changes BEFORE you start working!
+
+═══════════════════════════════════════════════════════════════════════════════
+THE PROBLEM YOU'RE HAVING
+═══════════════════════════════════════════════════════════════════════════════
+
+Designer A: Opens file at 9:00 AM
+Designer B: Opens SAME file at 9:05 AM
+
+Designer A: Makes changes, commits at 10:00 AM ✅
+Designer B: Makes changes, commits at 10:05 AM ❌ CONFLICT!
+
+GitHub says: "Wait! This file changed since you started. Who's version is correct?"
+
+═══════════════════════════════════════════════════════════════════════════════
+THE SIMPLE SOLUTION
+═══════════════════════════════════════════════════════════════════════════════
+
+Rule #1: Pull Before Work
+-------------------------
+Morning routine:
+1. Open GitHub Desktop
+2. Click "Fetch origin"
+3. Click "Pull origin" (if button appears)
+4. Open Unreal Engine
+
+Rule #2: Commit Often
+---------------------
+Every 30 minutes or after small changes:
+1. Save in Unreal (Ctrl+S)
+2. GitHub Desktop → Write description
+3. Click "Commit to main"
+4. Click "Push origin"
+
+Rule #3: Communicate!
+--------------------
+Before working on a file:
+"Hey team, I'm working on [filename] for next hour"
+
+═══════════════════════════════════════════════════════════════════════════════
+GITHUB DESKTOP WORKFLOW (STEP BY STEP)
+═══════════════════════════════════════════════════════════════════════════════
+
+MORNING WORKFLOW:
+-----------------
+1. Open GitHub Desktop
+2. Top right: Click "Fetch origin"
+   (Checks if anyone uploaded changes)
+3. If button changes to "Pull origin": CLICK IT!
+   (Downloads everyone's changes)
+4. Now safe to work! ✅
+
+AFTER MAKING CHANGES:
+---------------------
+1. Save in Unreal (Ctrl+S)
+2. Switch to GitHub Desktop
+3. Left side: You'll see changed files (checkboxes ✓)
+4. Bottom left: Write short description
+   Examples:
+   - "Updated level lighting"
+   - "Fixed door animation"
+   - "Added new materials"
+5. Click "Commit to main" (blue button)
+6. Click "Push origin" (top right)
+7. Done! Changes uploaded ✅
+
+═══════════════════════════════════════════════════════════════════════════════
+HANDLING CONFLICTS (When Two People Edit Same File)
+═══════════════════════════════════════════════════════════════════════════════
+
+When GitHub Desktop Shows Conflict:
+
+⚠️ Conflict in: /Content/Maps/MainLevel.umap
+
+SIMPLE SOLUTION:
+
+Option A: Keep Your Version
+  - Right-click file
+  - "Use my version"
+  - Commit and push
+
+Option B: Keep Their Version
+  - Right-click file
+  - "Use their version"
+  - Commit and push
+
+Option C: Start Over (Safest)
+  - Right-click file
+  - "Discard changes"
+  - Pull again
+  - Redo your work (yes, annoying but safest!)
+
+═══════════════════════════════════════════════════════════════════════════════
+PREVENTING CONFLICTS (BEST PRACTICES)
+═══════════════════════════════════════════════════════════════════════════════
+
+1. WORK ON DIFFERENT FILES
+---------------------------
+Designer A: Works on Level_1.umap
+Designer B: Works on Level_2.umap
+Designer C: Works on Materials
+✅ No conflicts possible!
+
+2. USE BRANCHES (Advanced but Useful)
+--------------------------------------
+What's a branch? Like making a copy to work on safely.
+
+main branch (the "real" version)
+├── sarah-branch (Sarah's experiments)
+├── john-branch (John's experiments)
+└── mike-branch (Mike's experiments)
+
+How to use:
+1. GitHub Desktop → Current Branch dropdown (top)
+2. Click "New Branch"
+3. Name it: sarah-level-design
+4. Work normally
+5. When done: "Create Pull Request"
+6. Team reviews → Merge into main ✅
+
+3. COMMUNICATE SCHEDULE
+-----------------------
+Use Google Sheet or Discord:
+
+| Time  | Designer | File Working On       |
+|-------|----------|-----------------------|
+| 9-11  | Sarah    | MainLevel.umap        |
+| 9-11  | John     | Materials/Wood.uasset |
+| 11-1  | Mike     | Blueprints/Door.uasset|
+
+═══════════════════════════════════════════════════════════════════════════════
+QUICK REFERENCE CARD (PRINT THIS!)
+═══════════════════════════════════════════════════════════════════════════════
+
+BEFORE WORK:
+1. Open GitHub Desktop
+2. Click "Fetch origin"
+3. Click "Pull origin" (if appears)
+4. Now work in Unreal
+
+AFTER WORK:
+1. Save in Unreal (Ctrl+S)
+2. GitHub Desktop → See changes
+3. Write description (bottom left)
+4. Click "Commit to main"
+5. Click "Push origin"
+
+IF CONFLICT:
+1. Ask: "Who worked on this file?"
+2. Decide whose version to keep
+3. Right-click → "Use my/their version"
+4. Commit and push
+
+GOLDEN RULES:
+✓ Pull before work
+✓ Commit small changes often
+✓ Push immediately after commit
+✓ Tell team what file you're editing
+✓ Work on different files when possible
+
+═══════════════════════════════════════════════════════════════════════════════
+FOR UNREAL ENGINE SPECIFICALLY
+═══════════════════════════════════════════════════════════════════════════════
+
+FILES THAT CONFLICT A LOT:
+--------------------------
+- .umap files (levels) - AVOID working simultaneously
+- Project settings
+- Main blueprints
+
+FILES THAT DON'T CONFLICT MUCH:
+-------------------------------
+- Individual materials
+- Textures
+- Static meshes
+- Individual blueprints
+
+STRATEGY:
+---------
+Have "owner" for each major file:
+- MainLevel.umap → Sarah owns it
+- Materials folder → John owns it
+- Blueprints folder → Mike owns it
+
+If need to edit someone else's file → ASK FIRST!
+
+═══════════════════════════════════════════════════════════════════════════════
+SIMPLE TEAM COMMUNICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Discord/Slack Message Example:
+
+Sarah: "Working on MainLevel lighting for next hour 🎨"
+John: "Cool, I'm doing materials, won't touch the level 👍"
+Mike: "I need to add a door to MainLevel, can I do it after Sarah?"
+Sarah: "Yeah! I'll ping you when done ✅"
+
+═══════════════════════════════════════════════════════════════════════════════
+EMERGENCY "I MESSED UP" SOLUTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+"I committed wrong thing!"
+--------------------------
+1. GitHub Desktop → History tab
+2. Right-click last commit
+3. "Revert this commit"
+4. Done! Goes back in time ⏰
+
+"Everything is broken!"
+-----------------------
+1. GitHub Desktop → Repository menu
+2. "Discard all changes"
+3. Pull again
+4. Start fresh ✅
+
+"I can't push!"
+---------------
+1. Fetch origin
+2. Pull origin
+3. Try push again
+4. Still stuck? Ask for help!
+
+═══════════════════════════════════════════════════════════════════════════════
+5-MINUTE DAILY ROUTINE
+═══════════════════════════════════════════════════════════════════════════════
+
+MORNING (9:00 AM):
+☐ Open GitHub Desktop
+☐ Fetch origin
+☐ Pull origin
+☐ Open Unreal
+
+MIDDAY (12:00 PM):
+☐ Save work
+☐ Commit & Push
+☐ Take lunch break
+
+EVENING (5:00 PM):
+☐ Save work
+☐ Commit & Push
+☐ Tell team what you worked on
+
+═══════════════════════════════════════════════════════════════════════════════
+KEY TAKEAWAY
+═══════════════════════════════════════════════════════════════════════════════
+
+GitHub is NOT the enemy! It's trying to protect everyone's work.
+
+Think of it like:
+- Google Docs → Shows who's editing
+- GitHub → You have to TELL it you're editing (by pulling first!)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Print this guide, stick it on the wall, and make "Pull before work" a habit! 🎉
+
+═══════════════════════════════════════════════════════════════════════════════

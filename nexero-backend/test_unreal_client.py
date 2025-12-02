@@ -21,7 +21,9 @@ import requests
 
 
 # Configuration
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://nexero.onrender.com"  # Production Render URL
+# BASE_URL = "https://nexero-production.up.railway.app"  # Old Railway URL
+# BASE_URL = "http://localhost:8000"  # Local testing
 API_VERSION = "v1"
 
 

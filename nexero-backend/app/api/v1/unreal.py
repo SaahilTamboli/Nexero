@@ -27,12 +27,13 @@ Endpoints:
 import logging
 from datetime import datetime, timezone
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
 
 from app.models.unreal import (
     UnrealSessionData,
     TrackingEventFromUnreal,
-    TrackingBatchFromUnreal
+    TrackingBatchFromUnreal,
+    FlexibleEventData
 )
 from app.services.session_service import SessionService
 from app.services.tracking_service import TrackingService
@@ -87,87 +88,139 @@ def get_tracking_service(db: SupabaseDB = Depends(get_database)) -> TrackingServ
 
 @router.post("/session", status_code=status.HTTP_201_CREATED)
 async def receive_session_data(
-    session_data: UnrealSessionData,
-    session_service: SessionService = Depends(get_session_service)
+    request: Request,
+    session_service: SessionService = Depends(get_session_service),
+    db: SupabaseDB = Depends(get_database)
 ):
     """
-    Receive VR session start/end data from Unreal Engine.
+    Universal endpoint that accepts ANY data from Unreal Engine.
     
-    Legacy endpoint supporting test format where Unreal sends session
-    data with Unix timestamp strings. Creates a complete session record
-    with pre-determined start and end times.
+    Automatically detects the data type and routes appropriately:
+    - Session data (has session_start/session_end) → stored in vr_sessions
+    - POI data (has POI, Parent, POI_Duration) → stored in simple_events
+    - View data (has View, TotalDuration) → stored in simple_events
+    - Any other data → stored in simple_events as generic event
     
-    Request Body:
-        - session_start: Unix timestamp string (e.g., "1727653800")
-        - session_end: Unix timestamp string (e.g., "1727654100")
-        - customer_id: Optional customer identifier
-        - property_id: Optional property identifier
-    
-    Response:
-        - status: "success"
-        - message: Description
-        - session_id: Generated UUID
-        - duration_seconds: Calculated session duration
-        - received_at: Current timestamp
-        
-    Raises:
-        HTTPException 400: Invalid timestamp format
-        HTTPException 500: Database or processing error
-        
-    Example Request:
-        POST /unreal/session
-        {
-            "session_start": "1727653800",
-            "session_end": "1727654100",
-            "customer_id": "cust_12345",
-            "property_id": "prop_67890"
-        }
+    This allows Unreal to send all data to one endpoint without changing URLs.
     """
     try:
-        # Log the RAW data received (before processing)
+        # Get raw JSON body
+        raw_data = await request.json()
+        
+        # Log the RAW data received
         logger.info("="*70)
-        logger.info("📥 INCOMING SESSION DATA FROM CLIENT:")
-        logger.info(f"  session_start: {session_data.session_start} (type: {type(session_data.session_start).__name__})")
-        logger.info(f"  session_end: {session_data.session_end} (type: {type(session_data.session_end).__name__})")
-        logger.info(f"  customer_id: {session_data.customer_id}")
-        logger.info(f"  property_id: {session_data.property_id}")
+        logger.info("📥 INCOMING DATA FROM UNREAL (universal endpoint):")
+        logger.info(f"  Raw data: {raw_data}")
         logger.info("="*70)
         
-        # Process session data through service layer
-        session = await session_service.process_unreal_session_data(
-            session_start=session_data.session_start,
-            session_end=session_data.session_end,
-            customer_id=session_data.customer_id,
-            property_id=session_data.property_id
-        )
+        # Detect data type and route accordingly
         
-        logger.info(
-            f"Successfully processed session {session['id']}: "
-            f"duration={session['duration_seconds']}s"
-        )
+        # === SESSION DATA (has session_start and session_end) ===
+        if "session_start" in raw_data and "session_end" in raw_data:
+            logger.info("📊 Detected: SESSION DATA")
+            
+            # Process session data through service layer
+            session = await session_service.process_unreal_session_data(
+                session_start=raw_data.get("session_start"),
+                session_end=raw_data.get("session_end"),
+                customer_id=raw_data.get("customer_id"),
+                property_id=raw_data.get("property_id")
+            )
+            
+            logger.info(f"Successfully processed session {session['id']}: duration={session['duration_seconds']}s")
+            
+            return {
+                "status": "success",
+                "data_type": "session",
+                "message": "Session data received and processed",
+                "session_id": session["id"],
+                "duration_seconds": session["duration_seconds"],
+                "received_at": datetime.now(timezone.utc).isoformat()
+            }
         
-        return {
-            "status": "success",
-            "message": "Session data received and processed",
-            "session_id": session["id"],
-            "duration_seconds": session["duration_seconds"],
-            "received_at": datetime.now(timezone.utc).isoformat()
-        }
+        # === POI DATA (has POI, Parent, POI_Duration) ===
+        elif "POI" in raw_data or "Parent" in raw_data or "POI_Duration" in raw_data:
+            logger.info("📍 Detected: POI DATA")
+            
+            event_record = {
+                "event_type": "POI_Visit",
+                "received_at": datetime.now(timezone.utc).isoformat(),
+                "data": raw_data
+            }
+            
+            try:
+                db.client.table("simple_events").insert(event_record).execute()
+                logger.info(f"Stored POI event: {raw_data}")
+            except Exception as db_error:
+                logger.warning(f"Could not store POI in DB: {db_error}")
+            
+            return {
+                "status": "success",
+                "data_type": "poi",
+                "message": "POI data received",
+                "received_at": datetime.now(timezone.utc).isoformat()
+            }
+        
+        # === VIEW DATA (has View, TotalDuration) ===
+        elif "View" in raw_data or "TotalDuration" in raw_data:
+            logger.info("👁️ Detected: VIEW DATA")
+            
+            event_record = {
+                "event_type": "View_Change",
+                "received_at": datetime.now(timezone.utc).isoformat(),
+                "data": raw_data
+            }
+            
+            try:
+                db.client.table("simple_events").insert(event_record).execute()
+                logger.info(f"Stored View event: {raw_data}")
+            except Exception as db_error:
+                logger.warning(f"Could not store View in DB: {db_error}")
+            
+            return {
+                "status": "success",
+                "data_type": "view",
+                "message": "View data received",
+                "received_at": datetime.now(timezone.utc).isoformat()
+            }
+        
+        # === GENERIC EVENT (anything else) ===
+        else:
+            logger.info("📦 Detected: GENERIC EVENT")
+            
+            event_record = {
+                "event_type": raw_data.get("event_type", "unknown"),
+                "received_at": datetime.now(timezone.utc).isoformat(),
+                "data": raw_data
+            }
+            
+            try:
+                db.client.table("simple_events").insert(event_record).execute()
+                logger.info(f"Stored generic event: {raw_data}")
+            except Exception as db_error:
+                logger.warning(f"Could not store event in DB: {db_error}")
+            
+            return {
+                "status": "success",
+                "data_type": "event",
+                "message": "Event data received",
+                "received_at": datetime.now(timezone.utc).isoformat()
+            }
         
     except ValueError as e:
-        # Invalid timestamp format
-        logger.error(f"Invalid timestamp format: {e}")
+        logger.error(f"Invalid data format: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid timestamp format: {str(e)}"
+            detail=f"Invalid data format: {str(e)}"
         )
     except Exception as e:
-        # Database or unexpected errors
-        logger.error(f"Error processing session data: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to process session data"
-        )
+        logger.error(f"Error processing data: {e}", exc_info=True)
+        # Return success anyway - don't break VR client
+        return {
+            "status": "received",
+            "message": "Data received (with warnings)",
+            "received_at": datetime.now(timezone.utc).isoformat()
+        }
 
 
 @router.post("/tracking/event", status_code=status.HTTP_202_ACCEPTED)
@@ -474,3 +527,97 @@ async def session_heartbeat(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to process heartbeat"
         )
+
+
+@router.post("/event", status_code=status.HTTP_201_CREATED)
+async def receive_flexible_event(
+    event: FlexibleEventData,
+    db: SupabaseDB = Depends(get_database)
+):
+    """
+    Receive any event type from Unreal Engine (FLEXIBLE ENDPOINT).
+    
+    This is the most flexible endpoint - it accepts ANY event with at minimum
+    an event_type field. Perfect for UI events, navigation clicks, custom
+    interactions, or any new event types you add to Unreal without needing
+    backend changes.
+    
+    All fields except event_type are optional and will be stored in a JSONB
+    metadata column for flexible querying later.
+    
+    Request Body:
+        - event_type: Required - Event type (e.g., "NavBar_Click", "Menu_Open")
+        - timestamp: Optional - Unix timestamp (string, int, or float)
+        - session_id: Optional - Session identifier
+        - Any other fields you want to track
+    
+    Response:
+        - status: "received"
+        - event_type: The event type that was received
+        - timestamp: Server timestamp when event was processed
+        
+    Example NavBar Click:
+        POST /unreal/event
+        {
+            "event_type": "NavBar_Click",
+            "Menu_Item": "Amenities",
+            "timestamp": "1764540726"
+        }
+        
+    Example Custom Event:
+        POST /unreal/event
+        {
+            "event_type": "Floor_Selected",
+            "floor_number": 3,
+            "building_id": "tower_a",
+            "session_id": "session_abc123"
+        }
+    """
+    try:
+        # Log the raw event data
+        logger.info("="*70)
+        logger.info("📥 INCOMING FLEXIBLE EVENT FROM CLIENT:")
+        logger.info(f"  event_type: {event.event_type}")
+        logger.info(f"  timestamp: {event.timestamp}")
+        logger.info(f"  session_id: {event.session_id}")
+        
+        # Get all extra fields that were passed
+        extra_fields = event.model_extra or {}
+        if extra_fields:
+            logger.info(f"  extra_fields: {extra_fields}")
+        logger.info("="*70)
+        
+        # Build event record for database
+        event_record = {
+            "event_type": event.event_type,
+            "session_id": event.session_id,
+            "received_at": datetime.now(timezone.utc).isoformat(),
+            # Store all data including extras as JSONB
+            "data": {
+                "timestamp": str(event.timestamp) if event.timestamp else None,
+                **extra_fields
+            }
+        }
+        
+        # Insert into simple_events table
+        try:
+            db.client.table("simple_events").insert(event_record).execute()
+            logger.info(f"Stored flexible event: {event.event_type}")
+        except Exception as db_error:
+            # Log but don't fail - defensive for VR client stability
+            logger.warning(f"Could not store event in DB (table may not exist): {db_error}")
+        
+        return {
+            "status": "received",
+            "event_type": event.event_type,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error processing flexible event: {e}", exc_info=True)
+        # Return success anyway - don't break VR client
+        return {
+            "status": "received",
+            "event_type": event.event_type if hasattr(event, 'event_type') else "unknown",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
