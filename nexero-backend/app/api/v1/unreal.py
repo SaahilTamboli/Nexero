@@ -44,6 +44,39 @@ from app.core.database import SupabaseDB
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
+def _parse_duration_to_seconds(duration_str: str) -> int:
+    """
+    Parse duration string (M:SS format) to seconds.
+    
+    Examples:
+        "0:45" → 45
+        "1:30" → 90
+        "2:00" → 120
+        
+    Args:
+        duration_str: Duration in "M:SS" format
+        
+    Returns:
+        int: Duration in seconds, 0 if parsing fails
+    """
+    try:
+        if not duration_str:
+            return 0
+        
+        parts = duration_str.split(':')
+        if len(parts) == 2:
+            minutes = int(parts[0])
+            seconds = int(parts[1])
+            return (minutes * 60) + seconds
+        elif len(parts) == 1:
+            return int(parts[0])
+        else:
+            return 0
+    except (ValueError, TypeError):
+        return 0
+
+
 # Create router for Unreal Engine endpoints
 router = APIRouter(
     prefix="/unreal",
@@ -150,23 +183,34 @@ async def receive_session_data(
             # Validate with Pydantic model (will raise if invalid)
             validated_poi = POIData(**raw_data)
             
-            # Build validated event record
-            event_record = {
-                "event_type": "POI_Visit",
-                "received_at": datetime.now(timezone.utc).isoformat(),
-                "data": {
-                    "POI": validated_poi.POI,
-                    "Parent": validated_poi.Parent,
-                    "POI_Duration": validated_poi.POI_Duration,
-                    "session_id": validated_poi.session_id
-                }
+            # Parse duration string to seconds (e.g., "1:30" → 90)
+            duration_seconds = _parse_duration_to_seconds(validated_poi.POI_Duration)
+            
+            # Build record for poi_visits table
+            poi_record = {
+                "poi_name": validated_poi.POI,
+                "parent_zone": validated_poi.Parent,
+                "duration_string": validated_poi.POI_Duration,
+                "duration_seconds": duration_seconds,
+                "received_at": datetime.now(timezone.utc).isoformat()
             }
             
             try:
-                db.client.table("simple_events").insert(event_record).execute()
-                logger.info(f"✅ POI validated and stored: {validated_poi.Parent}/{validated_poi.POI}")
+                db.client.table("poi_visits").insert(poi_record).execute()
+                logger.info(f"✅ POI validated and stored: {validated_poi.Parent}/{validated_poi.POI} ({duration_seconds}s)")
             except Exception as db_error:
-                logger.warning(f"Could not store POI in DB: {db_error}")
+                logger.warning(f"Could not store POI in poi_visits: {db_error}")
+                # Fallback to simple_events
+                try:
+                    fallback_record = {
+                        "event_type": "POI_Visit",
+                        "received_at": datetime.now(timezone.utc).isoformat(),
+                        "data": poi_record
+                    }
+                    db.client.table("simple_events").insert(fallback_record).execute()
+                    logger.info("Stored POI in simple_events (fallback)")
+                except Exception as fallback_error:
+                    logger.warning(f"Fallback storage also failed: {fallback_error}")
             
             return {
                 "status": "success",
@@ -175,6 +219,7 @@ async def receive_session_data(
                 "poi": validated_poi.POI,
                 "parent": validated_poi.Parent,
                 "duration": validated_poi.POI_Duration,
+                "duration_seconds": duration_seconds,
                 "received_at": datetime.now(timezone.utc).isoformat()
             }
         
@@ -185,22 +230,33 @@ async def receive_session_data(
             # Validate with Pydantic model (will raise if invalid)
             validated_view = ViewData(**raw_data)
             
-            # Build validated event record
-            event_record = {
-                "event_type": "View_Change",
-                "received_at": datetime.now(timezone.utc).isoformat(),
-                "data": {
-                    "View": validated_view.View,
-                    "TotalDuration": validated_view.TotalDuration,
-                    "session_id": validated_view.session_id
-                }
+            # Parse duration string to seconds (e.g., "1:30" → 90)
+            duration_seconds = _parse_duration_to_seconds(validated_view.TotalDuration)
+            
+            # Build record for view_events table
+            view_record = {
+                "view_name": validated_view.View,
+                "duration_string": validated_view.TotalDuration,
+                "duration_seconds": duration_seconds,
+                "received_at": datetime.now(timezone.utc).isoformat()
             }
             
             try:
-                db.client.table("simple_events").insert(event_record).execute()
-                logger.info(f"✅ View validated and stored: {validated_view.View}")
+                db.client.table("view_events").insert(view_record).execute()
+                logger.info(f"✅ View validated and stored: {validated_view.View} ({duration_seconds}s)")
             except Exception as db_error:
-                logger.warning(f"Could not store View in DB: {db_error}")
+                logger.warning(f"Could not store View in view_events: {db_error}")
+                # Fallback to simple_events
+                try:
+                    fallback_record = {
+                        "event_type": "View_Change",
+                        "received_at": datetime.now(timezone.utc).isoformat(),
+                        "data": view_record
+                    }
+                    db.client.table("simple_events").insert(fallback_record).execute()
+                    logger.info("Stored View in simple_events (fallback)")
+                except Exception as fallback_error:
+                    logger.warning(f"Fallback storage also failed: {fallback_error}")
             
             return {
                 "status": "success",
@@ -208,6 +264,7 @@ async def receive_session_data(
                 "message": "View data validated and received",
                 "view": validated_view.View,
                 "duration": validated_view.TotalDuration,
+                "duration_seconds": duration_seconds,
                 "received_at": datetime.now(timezone.utc).isoformat()
             }
         
