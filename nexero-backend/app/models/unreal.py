@@ -9,6 +9,8 @@ Unreal Engine VR Tour → HTTP POST → These Models → Database Storage
 
 Models:
 - UnrealSessionData: Session start/end metadata
+- POIData: Point of Interest tracking (zones, rooms, amenities)
+- ViewData: View/navigation tracking with duration
 - TrackingEventFromUnreal: Individual tracking events (gaze, zones, interactions)
 - TrackingBatchFromUnreal: Batch of multiple tracking events
 """
@@ -71,6 +73,94 @@ class UnrealSessionData(BaseModel):
                 "session_end": "1727654100",
                 "customer_id": "cust_12345",
                 "property_id": "prop_67890"
+            }
+        }
+
+
+class POIData(BaseModel):
+    """
+    Point of Interest (POI) tracking data from Unreal Engine.
+    
+    Tracks when user visits different zones/locations in the 3D tour:
+    - Rooms (Kitchen, Bedroom, Living Room)
+    - Amenities (Park, Pool, Gym)
+    - Unit views
+    
+    Attributes:
+        POI: Name of the specific point of interest (can be empty string)
+        Parent: Parent category/zone (e.g., "Amenities", "Unit_A", "Floor_2")
+        POI_Duration: Time spent in this POI as string (e.g., "0:02" for 2 seconds)
+        session_id: Optional session identifier for linking
+        
+    Example from Unreal:
+        {
+            "POI": "Kitchen",
+            "Parent": "Unit_A",
+            "POI_Duration": "0:45"
+        }
+    """
+    
+    POI: str = ""  # Can be empty string
+    Parent: str
+    POI_Duration: str  # Format: "M:SS" like "0:02", "1:30"
+    session_id: Optional[str] = None
+    
+    @field_validator('POI_Duration', mode='before')
+    @classmethod
+    def validate_duration(cls, v):
+        """Ensure duration is a string in expected format."""
+        if v is None:
+            return "0:00"
+        return str(v)
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "POI": "Kitchen",
+                "Parent": "Amenities",
+                "POI_Duration": "0:45"
+            }
+        }
+
+
+class ViewData(BaseModel):
+    """
+    View/Navigation tracking data from Unreal Engine.
+    
+    Tracks overall view changes and total time spent in major sections:
+    - Main property view
+    - Unit views
+    - Amenities section
+    
+    Attributes:
+        View: Name of the view/section (e.g., "Amenities", "Unit_Overview")
+        TotalDuration: Total time spent in this view as string (e.g., "0:13")
+        session_id: Optional session identifier for linking
+        
+    Example from Unreal:
+        {
+            "View": "Amenities",
+            "TotalDuration": "0:13"
+        }
+    """
+    
+    View: str
+    TotalDuration: str  # Format: "M:SS" like "0:13", "2:30"
+    session_id: Optional[str] = None
+    
+    @field_validator('TotalDuration', mode='before')
+    @classmethod
+    def validate_duration(cls, v):
+        """Ensure duration is a string in expected format."""
+        if v is None:
+            return "0:00"
+        return str(v)
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "View": "Amenities",
+                "TotalDuration": "1:30"
             }
         }
 

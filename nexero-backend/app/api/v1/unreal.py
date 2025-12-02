@@ -31,6 +31,8 @@ from fastapi import APIRouter, HTTPException, Depends, status, Request
 
 from app.models.unreal import (
     UnrealSessionData,
+    POIData,
+    ViewData,
     TrackingEventFromUnreal,
     TrackingBatchFromUnreal,
     FlexibleEventData
@@ -93,15 +95,15 @@ async def receive_session_data(
     db: SupabaseDB = Depends(get_database)
 ):
     """
-    Universal endpoint that accepts ANY data from Unreal Engine.
+    Universal endpoint that accepts validated data from Unreal Engine.
     
-    Automatically detects the data type and routes appropriately:
-    - Session data (has session_start/session_end) → stored in vr_sessions
-    - POI data (has POI, Parent, POI_Duration) → stored in simple_events
-    - View data (has View, TotalDuration) → stored in simple_events
-    - Any other data → stored in simple_events as generic event
+    Automatically detects the data type and validates with Pydantic models:
+    - Session data (has session_start/session_end) → validated with UnrealSessionData
+    - POI data (has Parent, POI_Duration) → validated with POIData
+    - View data (has View, TotalDuration) → validated with ViewData
+    - Unknown data types → rejected with 400 error
     
-    This allows Unreal to send all data to one endpoint without changing URLs.
+    This is SAFE because all data is validated before storage.
     """
     try:
         # Get raw JSON body
@@ -113,114 +115,129 @@ async def receive_session_data(
         logger.info(f"  Raw data: {raw_data}")
         logger.info("="*70)
         
-        # Detect data type and route accordingly
+        # Detect data type and validate with appropriate Pydantic model
         
         # === SESSION DATA (has session_start and session_end) ===
         if "session_start" in raw_data and "session_end" in raw_data:
-            logger.info("📊 Detected: SESSION DATA")
+            logger.info("📊 Detected: SESSION DATA - Validating...")
+            
+            # Validate with Pydantic model (will raise if invalid)
+            validated_session = UnrealSessionData(**raw_data)
             
             # Process session data through service layer
             session = await session_service.process_unreal_session_data(
-                session_start=raw_data.get("session_start"),
-                session_end=raw_data.get("session_end"),
-                customer_id=raw_data.get("customer_id"),
-                property_id=raw_data.get("property_id")
+                session_start=validated_session.session_start,
+                session_end=validated_session.session_end,
+                customer_id=validated_session.customer_id,
+                property_id=validated_session.property_id
             )
             
-            logger.info(f"Successfully processed session {session['id']}: duration={session['duration_seconds']}s")
+            logger.info(f"✅ Session validated and stored: {session['id']}")
             
             return {
                 "status": "success",
                 "data_type": "session",
-                "message": "Session data received and processed",
+                "message": "Session data validated and processed",
                 "session_id": session["id"],
                 "duration_seconds": session["duration_seconds"],
                 "received_at": datetime.now(timezone.utc).isoformat()
             }
         
-        # === POI DATA (has POI, Parent, POI_Duration) ===
-        elif "POI" in raw_data or "Parent" in raw_data or "POI_Duration" in raw_data:
-            logger.info("📍 Detected: POI DATA")
+        # === POI DATA (has Parent and POI_Duration) ===
+        elif "Parent" in raw_data and "POI_Duration" in raw_data:
+            logger.info("📍 Detected: POI DATA - Validating...")
             
+            # Validate with Pydantic model (will raise if invalid)
+            validated_poi = POIData(**raw_data)
+            
+            # Build validated event record
             event_record = {
                 "event_type": "POI_Visit",
                 "received_at": datetime.now(timezone.utc).isoformat(),
-                "data": raw_data
+                "data": {
+                    "POI": validated_poi.POI,
+                    "Parent": validated_poi.Parent,
+                    "POI_Duration": validated_poi.POI_Duration,
+                    "session_id": validated_poi.session_id
+                }
             }
             
             try:
                 db.client.table("simple_events").insert(event_record).execute()
-                logger.info(f"Stored POI event: {raw_data}")
+                logger.info(f"✅ POI validated and stored: {validated_poi.Parent}/{validated_poi.POI}")
             except Exception as db_error:
                 logger.warning(f"Could not store POI in DB: {db_error}")
             
             return {
                 "status": "success",
                 "data_type": "poi",
-                "message": "POI data received",
+                "message": "POI data validated and received",
+                "poi": validated_poi.POI,
+                "parent": validated_poi.Parent,
+                "duration": validated_poi.POI_Duration,
                 "received_at": datetime.now(timezone.utc).isoformat()
             }
         
-        # === VIEW DATA (has View, TotalDuration) ===
-        elif "View" in raw_data or "TotalDuration" in raw_data:
-            logger.info("👁️ Detected: VIEW DATA")
+        # === VIEW DATA (has View and TotalDuration) ===
+        elif "View" in raw_data and "TotalDuration" in raw_data:
+            logger.info("👁️ Detected: VIEW DATA - Validating...")
             
+            # Validate with Pydantic model (will raise if invalid)
+            validated_view = ViewData(**raw_data)
+            
+            # Build validated event record
             event_record = {
                 "event_type": "View_Change",
                 "received_at": datetime.now(timezone.utc).isoformat(),
-                "data": raw_data
+                "data": {
+                    "View": validated_view.View,
+                    "TotalDuration": validated_view.TotalDuration,
+                    "session_id": validated_view.session_id
+                }
             }
             
             try:
                 db.client.table("simple_events").insert(event_record).execute()
-                logger.info(f"Stored View event: {raw_data}")
+                logger.info(f"✅ View validated and stored: {validated_view.View}")
             except Exception as db_error:
                 logger.warning(f"Could not store View in DB: {db_error}")
             
             return {
                 "status": "success",
                 "data_type": "view",
-                "message": "View data received",
+                "message": "View data validated and received",
+                "view": validated_view.View,
+                "duration": validated_view.TotalDuration,
                 "received_at": datetime.now(timezone.utc).isoformat()
             }
         
-        # === GENERIC EVENT (anything else) ===
+        # === UNKNOWN DATA TYPE - REJECT ===
         else:
-            logger.info("📦 Detected: GENERIC EVENT")
-            
-            event_record = {
-                "event_type": raw_data.get("event_type", "unknown"),
-                "received_at": datetime.now(timezone.utc).isoformat(),
-                "data": raw_data
-            }
-            
-            try:
-                db.client.table("simple_events").insert(event_record).execute()
-                logger.info(f"Stored generic event: {raw_data}")
-            except Exception as db_error:
-                logger.warning(f"Could not store event in DB: {db_error}")
-            
-            return {
-                "status": "success",
-                "data_type": "event",
-                "message": "Event data received",
-                "received_at": datetime.now(timezone.utc).isoformat()
-            }
+            logger.warning(f"❌ Unknown data type received: {list(raw_data.keys())}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "error": "Unknown data type",
+                    "message": "Data must contain either: (session_start + session_end), (Parent + POI_Duration), or (View + TotalDuration)",
+                    "received_keys": list(raw_data.keys())
+                }
+            )
         
+    except HTTPException:
+        # Re-raise HTTP exceptions (like our 400 above)
+        raise
     except ValueError as e:
-        logger.error(f"Invalid data format: {e}")
+        logger.error(f"Validation error: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid data format: {str(e)}"
         )
     except Exception as e:
         logger.error(f"Error processing data: {e}", exc_info=True)
-        # Return success anyway - don't break VR client
-        return {
-            "status": "received",
-            "message": "Data received (with warnings)",
-            "received_at": datetime.now(timezone.utc).isoformat()
-        }
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error while processing data"
+        )
 
 
 @router.post("/tracking/event", status_code=status.HTTP_202_ACCEPTED)
