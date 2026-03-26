@@ -1,0 +1,391 @@
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 400 Bad Request
+2025-12-02 14:30:00 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:00 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:00 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:00 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:00 - app.api.v1.unreal - INFO -   Raw data: {'View': 'Amenities', 'TotalDuration': '0:06'}
+2025-12-02 14:30:00 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:00 - app.api.v1.unreal - INFO - 👁️ Detected: VIEW DATA - Validating...
+2025-12-02 14:30:00 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:01 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/view_events "HTTP/2 201 Created"
+2025-12-02 14:30:01 - app.api.v1.unreal - INFO - ✅ View validated and stored: Amenities (6s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:01 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:01 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:01 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:01 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'Source': '', 'Parent': 'Amenities', 'POI_Duration': '0:02'}
+2025-12-02 14:30:01 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:01 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:30:02 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:30:02 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/ (2s)
+2025-12-02 14:30:02 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"View": "",
+	"TotalDuration": "1,77,50,078:30:03"
+}
+2025-12-02 14:30:02 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:02 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:02 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:02 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:02 - app.api.v1.unreal - INFO -   Raw data: {'View': '', 'TotalDuration': '1,77,50,078:30:03'}
+2025-12-02 14:30:02 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:02 - app.api.v1.unreal - INFO - 👁️ Detected: VIEW DATA - Validating...
+2025-12-02 14:30:02 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/view_events "HTTP/2 201 Created"
+2025-12-02 14:30:02 - app.api.v1.unreal - INFO - ✅ View validated and stored:  (0s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:03 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"Source": "",
+	"Parent": "Location",
+	"POI_Duration": "1,77,50,078:30:04"
+}
+2025-12-02 14:30:04 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:04 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:04 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:04 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:04 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'Source': '', 'Parent': 'Location', 'POI_Duration': '1,77,50,078:30:04'}
+2025-12-02 14:30:04 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:04 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:30:04 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:30:04 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Location/ (0s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:05 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"Source": "",
+	"Parent": "Location",
+	"POI_Duration": "0:01"
+}
+2025-12-02 14:30:05 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:05 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:05 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:05 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:05 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'Source': '', 'Parent': 'Location', 'POI_Duration': '0:01'}
+2025-12-02 14:30:05 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:05 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:30:05 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:30:05 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Location/ (1s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:06 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"View": "Location",
+	"TotalDuration": "0:04"
+}
+2025-12-02 14:30:06 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:06 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:06 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:06 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:06 - app.api.v1.unreal - INFO -   Raw data: {'View': 'Location', 'TotalDuration': '0:04'}
+2025-12-02 14:30:06 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:06 - app.api.v1.unreal - INFO - 👁️ Detected: VIEW DATA - Validating...
+2025-12-02 14:30:07 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/view_events "HTTP/2 201 Created"
+2025-12-02 14:30:07 - app.api.v1.unreal - INFO - ✅ View validated and stored: Location (4s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:08 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"Source": "",
+	"Parent": "Amenities",
+	"POI_Duration": "0:03"
+}
+2025-12-02 14:30:08 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:08 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:08 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:08 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:08 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'Source': '', 'Parent': 'Amenities', 'POI_Duration': '0:03'}
+2025-12-02 14:30:08 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:08 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:30:08 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:30:08 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/ (3s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:09 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"Source": "",
+	"Parent": "Amenities",
+	"POI_Duration": "0:01"
+}
+2025-12-02 14:30:09 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:09 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:09 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:09 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:09 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'Source': '', 'Parent': 'Amenities', 'POI_Duration': '0:01'}
+2025-12-02 14:30:09 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:09 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:30:10 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:30:10 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/ (1s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:10 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"Source": "",
+	"Parent": "Amenities",
+	"POI_Duration": "0:01"
+}
+2025-12-02 14:30:10 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:10 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:10 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:10 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:10 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'Source': '', 'Parent': 'Amenities', 'POI_Duration': '0:01'}
+2025-12-02 14:30:10 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:10 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:30:11 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:30:11 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/ (1s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:12 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"View": "Amenities",
+	"TotalDuration": "0:05"
+}
+2025-12-02 14:30:12 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:12 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:12 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:12 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:12 - app.api.v1.unreal - INFO -   Raw data: {'View': 'Amenities', 'TotalDuration': '0:05'}
+2025-12-02 14:30:12 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:12 - app.api.v1.unreal - INFO - 👁️ Detected: VIEW DATA - Validating...
+2025-12-02 14:30:12 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/view_events "HTTP/2 201 Created"
+2025-12-02 14:30:12 - app.api.v1.unreal - INFO - ✅ View validated and stored: Amenities (5s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:30:13 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"session_id": "7AFF2D5C4FDBFA8B8A9FDAA1EFA98CE8",
+	"session_start": "02-Dec-2025, 2:30:00 pm",
+	"session_end": "02-Dec-2025, 2:30:14 pm",
+	"duration": "0:14"
+}
+2025-12-02 14:30:13 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:30:13 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:30:13 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:13 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:30:13 - app.api.v1.unreal - INFO -   Raw data: {'session_id': '7AFF2D5C4FDBFA8B8A9FDAA1EFA98CE8', 'session_start': '02-Dec-2025, 2:30:00 pm', 'session_end': '02-Dec-2025, 2:30:14 pm', 'duration': '0:14'}
+2025-12-02 14:30:13 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:30:13 - app.api.v1.unreal - INFO - 📊 Detected: SESSION DATA - Validating...
+2025-12-02 14:30:13 - app.services.session_service - ERROR - Invalid timestamp format: could not convert string to float: '02-Dec-2025, 2:30:00 pm'
+Traceback (most recent call last):
+  File "/opt/render/project/src/nexero-backend/app/services/session_service.py", line 286, in process_unreal_session_data
+    float(session_start),
+    ~~~~~^^^^^^^^^^^^^^^
+ValueError: could not convert string to float: '02-Dec-2025, 2:30:00 pm'
+2025-12-02 14:30:13 - app.api.v1.unreal - ERROR - Validation error: Invalid timestamp strings: could not convert string to float: '02-Dec-2025, 2:30:00 pm'
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 400 Bad Request
+2025-12-02 14:54:14 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"View": "",
+	"TotalDuration": "1,77,50,078:54:14"
+}
+2025-12-02 14:54:14 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:14 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:14 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:14 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:14 - app.api.v1.unreal - INFO -   Raw data: {'View': '', 'TotalDuration': '1,77,50,078:54:14'}
+2025-12-02 14:54:14 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:14 - app.api.v1.unreal - INFO - 👁️ Detected: VIEW DATA - Validating...
+2025-12-02 14:54:15 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/view_events "HTTP/2 201 Created"
+2025-12-02 14:54:15 - app.api.v1.unreal - INFO - ✅ View validated and stored:  (0s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:16 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"View": "Home",
+	"TotalDuration": "0:02"
+}
+2025-12-02 14:54:16 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:16 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:16 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:16 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:16 - app.api.v1.unreal - INFO -   Raw data: {'View': 'Home', 'TotalDuration': '0:02'}
+2025-12-02 14:54:16 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:16 - app.api.v1.unreal - INFO - 👁️ Detected: VIEW DATA - Validating...
+2025-12-02 14:54:17 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/view_events "HTTP/2 201 Created"
+2025-12-02 14:54:17 - app.api.v1.unreal - INFO - ✅ View validated and stored: Home (2s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:18 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"POI_Source": "",
+	"Parent": "Location",
+	"POI_Duration": "1,77,50,078:54:19"
+}
+2025-12-02 14:54:18 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:18 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:18 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:18 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:18 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'POI_Source': '', 'Parent': 'Location', 'POI_Duration': '1,77,50,078:54:19'}
+2025-12-02 14:54:18 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:18 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:19 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:19 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Location/ (0s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:20 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"POI_Source": "",
+	"Parent": "Location",
+	"POI_Duration": "0:01"
+}
+2025-12-02 14:54:20 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:20 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:20 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:20 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:20 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'POI_Source': '', 'Parent': 'Location', 'POI_Duration': '0:01'}
+2025-12-02 14:54:20 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:20 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:20 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:20 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Location/ (1s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:22 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"POI_Source": "",
+	"Parent": "Location",
+	"POI_Duration": "0:01"
+}
+2025-12-02 14:54:22 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:22 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:22 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:22 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:22 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'POI_Source': '', 'Parent': 'Location', 'POI_Duration': '0:01'}
+2025-12-02 14:54:22 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:22 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:22 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:22 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Location/ (1s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:24 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"View": "Location",
+	"TotalDuration": "0:07"
+}
+2025-12-02 14:54:24 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:24 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:24 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:24 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:24 - app.api.v1.unreal - INFO -   Raw data: {'View': 'Location', 'TotalDuration': '0:07'}
+2025-12-02 14:54:24 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:24 - app.api.v1.unreal - INFO - 👁️ Detected: VIEW DATA - Validating...
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:24 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/view_events "HTTP/2 201 Created"
+2025-12-02 14:54:24 - app.api.v1.unreal - INFO - ✅ View validated and stored: Location (7s)
+2025-12-02 14:54:26 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"POI_Source": "",
+	"Parent": "Amenities",
+	"POI_Duration": "0:03"
+}
+2025-12-02 14:54:26 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:26 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:26 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:26 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:26 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'POI_Source': '', 'Parent': 'Amenities', 'POI_Duration': '0:03'}
+2025-12-02 14:54:26 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:26 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:26 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:26 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/ (3s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:28 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"POI_Source": "",
+	"Parent": "Amenities",
+	"POI_Duration": "0:02"
+}
+2025-12-02 14:54:28 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:28 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:28 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:28 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:28 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'POI_Source': '', 'Parent': 'Amenities', 'POI_Duration': '0:02'}
+2025-12-02 14:54:28 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:28 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:28 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:28 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/ (2s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:29 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"POI_Source": "",
+	"Parent": "Amenities",
+	"POI_Duration": "0:01"
+}
+2025-12-02 14:54:29 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:29 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:29 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:29 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:29 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'POI_Source': '', 'Parent': 'Amenities', 'POI_Duration': '0:01'}
+2025-12-02 14:54:29 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:29 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:29 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:29 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/ (1s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:30 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "",
+	"POI_Source": "",
+	"Parent": "Amenities",
+	"POI_Duration": "0:01"
+}
+2025-12-02 14:54:30 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:30 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:30 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:30 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:30 - app.api.v1.unreal - INFO -   Raw data: {'POI': '', 'POI_Source': '', 'Parent': 'Amenities', 'POI_Duration': '0:01'}
+2025-12-02 14:54:30 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:30 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:31 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:31 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/ (1s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:31 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "Gym",
+	"POI_Source": "Floating",
+	"Parent": "Amenities",
+	"POI_Duration": "0:01"
+}
+2025-12-02 14:54:31 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:31 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:31 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:31 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:31 - app.api.v1.unreal - INFO -   Raw data: {'POI': 'Gym', 'POI_Source': 'Floating', 'Parent': 'Amenities', 'POI_Duration': '0:01'}
+2025-12-02 14:54:31 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:31 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:32 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:32 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/Gym (1s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:32 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"POI": "Gym",
+	"POI_Source": "Floating",
+	"Parent": "Amenities",
+	"POI_Duration": "0:00"
+}
+2025-12-02 14:54:32 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:32 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:32 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:32 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:32 - app.api.v1.unreal - INFO -   Raw data: {'POI': 'Gym', 'POI_Source': 'Floating', 'Parent': 'Amenities', 'POI_Duration': '0:00'}
+2025-12-02 14:54:32 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:32 - app.api.v1.unreal - INFO - 📍 Detected: POI DATA - Validating...
+2025-12-02 14:54:33 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/poi_visits "HTTP/2 201 Created"
+2025-12-02 14:54:33 - app.api.v1.unreal - INFO - ✅ POI validated and stored: Amenities/Gym (0s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:34 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"View": "Amenities",
+	"TotalDuration": "0:10"
+}
+2025-12-02 14:54:34 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:34 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:34 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:34 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:34 - app.api.v1.unreal - INFO -   Raw data: {'View': 'Amenities', 'TotalDuration': '0:10'}
+2025-12-02 14:54:34 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:34 - app.api.v1.unreal - INFO - 👁️ Detected: VIEW DATA - Validating...
+2025-12-02 14:54:35 - httpx - INFO - HTTP Request: POST https://uutpfpottowcfxxymtoy.supabase.co/rest/v1/view_events "HTTP/2 201 Created"
+2025-12-02 14:54:35 - app.api.v1.unreal - INFO - ✅ View validated and stored: Amenities (10s)
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 201 Created
+2025-12-02 14:54:37 - app.main - INFO - 📥 [RAW REQUEST] POST /api/v1/unreal/session -> {
+	"session_id": "46D673E04225F8C2B5D52F99796B2CDF",
+	"session_start": "02-Dec-2025, 2:54:12 pm",
+	"session_end": "02-Dec-2025, 2:54:37 pm",
+	"duration": "0:25"
+}
+2025-12-02 14:54:37 - app.core.database - INFO - Supabase database connection initialized
+2025-12-02 14:54:37 - app.services.session_service - INFO - SessionService initialized
+2025-12-02 14:54:37 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:37 - app.api.v1.unreal - INFO - 📥 INCOMING DATA FROM UNREAL (universal endpoint):
+2025-12-02 14:54:37 - app.api.v1.unreal - INFO -   Raw data: {'session_id': '46D673E04225F8C2B5D52F99796B2CDF', 'session_start': '02-Dec-2025, 2:54:12 pm', 'session_end': '02-Dec-2025, 2:54:37 pm', 'duration': '0:25'}
+2025-12-02 14:54:37 - app.api.v1.unreal - INFO - ======================================================================
+2025-12-02 14:54:37 - app.api.v1.unreal - INFO - 📊 Detected: SESSION DATA - Validating...
+2025-12-02 14:54:37 - app.services.session_service - ERROR - Invalid timestamp format: could not convert string to float: '02-Dec-2025, 2:54:12 pm'
+Traceback (most recent call last):
+  File "/opt/render/project/src/nexero-backend/app/services/session_service.py", line 286, in process_unreal_session_data
+    float(session_start),
+    ~~~~~^^^^^^^^^^^^^^^
+ValueError: could not convert string to float: '02-Dec-2025, 2:54:12 pm'
+2025-12-02 14:54:37 - app.api.v1.unreal - ERROR - Validation error: Invalid timestamp strings: could not convert string to float: '02-Dec-2025, 2:54:12 pm'
+INFO:     223.185.42.184:0 - "POST /api/v1/unreal/session HTTP/1.1" 400 Bad Request
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2025-12-02 15:10:39 - app.main - INFO - ============================================================
+2025-12-02 15:10:39 - app.main - INFO - 👋 Nexero VR Backend shutting down
+2025-12-02 15:10:39 - app.main - INFO - ============================================================
+INFO:     Application shutdown complete.
+INFO:     Finished server process [41]
