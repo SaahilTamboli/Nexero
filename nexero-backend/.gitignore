@@ -155,8 +155,7 @@ GITHUB_STATUS.md
 DEPLOYMENT_OPTIONS.md
 
 # Documentation and troubleshooting guides
-*.md
-!README.md
+# Keep markdown docs versioned for onboarding, process, and changelog.
 
 # ==============================================================================
 # DEPENDENCIES

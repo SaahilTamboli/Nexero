@@ -34,11 +34,12 @@ import logging
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import Callable
 
+from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.unreal import router as unreal_router
 from app.config import get_settings
 from app.core.database import SupabaseDB
@@ -147,6 +148,11 @@ app.include_router(
     prefix="/api/v1"
 )
 
+app.include_router(
+    dashboard_router,
+    prefix="/api/v1"
+)
+
 
 @app.get("/", tags=["Root"])
 async def root():
@@ -246,6 +252,30 @@ async def global_exception_handler(request: Request, exc: Exception):
             "path": request.url.path
         }
     )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Normalize API errors to a frontend-friendly structure."""
+    details = None
+    code = "HTTP_ERROR"
+    message = "Request failed"
+
+    if isinstance(exc.detail, dict):
+        message = exc.detail.get("message") or exc.detail.get("error") or message
+        code = exc.detail.get("code") or code
+        details = exc.detail.get("details")
+    elif exc.detail:
+        message = str(exc.detail)
+
+    payload = {
+        "message": message,
+        "code": code,
+    }
+    if details is not None:
+        payload["details"] = details
+
+    return JSONResponse(status_code=exc.status_code, content=payload)
 
 
 # Run application directly with Python

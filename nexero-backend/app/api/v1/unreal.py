@@ -153,6 +153,7 @@ def get_tracking_service(db: SupabaseDB = Depends(get_database)) -> TrackingServ
 
 
 @router.post("/session", status_code=status.HTTP_201_CREATED)
+@router.post("/sessions", status_code=status.HTTP_201_CREATED)
 async def receive_session_data(
     request: Request,
     session_service: SessionService = Depends(get_session_service),
@@ -333,6 +334,7 @@ async def receive_session_data(
 
 
 @router.post("/tracking/event", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/events", status_code=status.HTTP_202_ACCEPTED)
 async def receive_tracking_event(
     event: TrackingEventFromUnreal,
     tracking_service: TrackingService = Depends(get_tracking_service)
@@ -415,6 +417,7 @@ async def receive_tracking_event(
 
 
 @router.post("/tracking/batch", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/batch", status_code=status.HTTP_202_ACCEPTED)
 async def receive_tracking_batch(
     batch: TrackingBatchFromUnreal,
     tracking_service: TrackingService = Depends(get_tracking_service)
@@ -577,6 +580,7 @@ async def get_session_status(
 
 
 @router.post("/session/{session_id}/heartbeat")
+@router.post("/heartbeat/{session_id}")
 async def session_heartbeat(
     session_id: str,
     session_service: SessionService = Depends(get_session_service)

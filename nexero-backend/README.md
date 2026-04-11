@@ -2,6 +2,16 @@
 
 Backend API for VR real estate behavioral analytics platform. Receives tracking data from Unreal Engine VR tours and processes it for AI-powered sales insights.
 
+## Documentation Index
+
+- Team onboarding: `docs/ONBOARDING.md`
+- Architecture and API map: `docs/ARCHITECTURE.md`
+- Release process: `docs/RELEASE_PROCESS.md`
+- Contributing standards: `CONTRIBUTING.md`
+- Handover checklist template: `docs/templates/HANDOVER_CHECKLIST.md`
+- Docs home: `docs/README.md`
+- Change history: `CHANGELOG.md`
+
 ## 📋 Overview
 
 **Nexero** is a VR real estate platform that tracks customer behavior during virtual property tours to generate actionable sales insights for builders and sales teams.

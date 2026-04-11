@@ -17,6 +17,7 @@ Usage:
 """
 
 import logging
+from functools import lru_cache
 from typing import List, Optional, Any
 from supabase import create_client, Client
 from app.config import get_settings
@@ -24,6 +25,17 @@ from datetime import datetime, timezone
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+
+@lru_cache()
+def _get_supabase_client() -> Client:
+    """Create and cache a single Supabase client instance."""
+    settings = get_settings()
+    supabase_key = settings.SUPABASE_SERVICE_ROLE_KEY or settings.SUPABASE_KEY
+    return create_client(
+        supabase_url=settings.SUPABASE_URL,
+        supabase_key=supabase_key,
+    )
 
 
 def _convert_timestamp_to_iso(value: Any) -> str:
@@ -86,11 +98,7 @@ class SupabaseDB:
         Loads configuration from environment variables and creates
         a Supabase client instance for database operations.
         """
-        settings = get_settings()
-        self.client: Client = create_client(
-            supabase_url=settings.SUPABASE_URL,
-            supabase_key=settings.SUPABASE_KEY
-        )
+        self.client: Client = _get_supabase_client()
         logger.info("Supabase database connection initialized")
     
     async def create_session(self, session_data: dict) -> Optional[dict]:

@@ -20,7 +20,7 @@ Usage:
 """
 
 from functools import lru_cache
-from typing import List
+from typing import List, Optional
 from pydantic_settings import BaseSettings
 
 
@@ -34,13 +34,16 @@ class Settings(BaseSettings):
     
     # Supabase Configuration
     SUPABASE_URL: str
-    SUPABASE_KEY: str  # Service role key for backend operations
+    SUPABASE_KEY: str  # Backward-compatible key (service role preferred)
+    SUPABASE_SERVICE_ROLE_KEY: Optional[str] = None
+    SUPABASE_JWT_SECRET: Optional[str] = None
     
     # Application Configuration
     ENVIRONMENT: str = "development"
     LOG_LEVEL: str = "info"
     CORS_ORIGINS: List[str] = ["*"]
     API_VERSION: str = "v1"
+    REQUIRE_DASHBOARD_AUTH: bool = False
     
     class Config:
         """Pydantic configuration for Settings class."""
