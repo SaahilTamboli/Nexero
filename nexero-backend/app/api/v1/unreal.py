@@ -30,9 +30,10 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status, Request, Query
 
 from app.models.unreal import (
-    UnrealSessionData,
-    POIData,
-    ViewData,
+    ViewModePayload,
+    POIPayload,
+    UnitSelectionPayload,
+    SessionSummaryPayload,
     TrackingEventFromUnreal,
     TrackingBatchFromUnreal,
     FlexibleEventData
@@ -180,138 +181,76 @@ async def receive_session_data(
         logger.info(f"  Raw data: {raw_data}")
         logger.info("="*70)
         
-        # Detect data type and validate with appropriate Pydantic model
-        
-        # === SESSION DATA (has session_start and session_end) ===
-        if "session_start" in raw_data and "session_end" in raw_data:
-            logger.info("📊 Detected: SESSION DATA - Validating...")
-            
-            # Validate with Pydantic model (will raise if invalid)
-            validated_session = UnrealSessionData(**raw_data)
-            
-            # Process session data through service layer
-            session = await session_service.process_unreal_session_data(
-                session_start=validated_session.session_start,
-                session_end=validated_session.session_end,
-                customer_id=validated_session.customer_id,
-                property_id=validated_session.property_id
-            )
-            
-            logger.info(f"✅ Session validated and stored: {session['id']}")
-            
-            return {
-                "status": "success",
-                "data_type": "session",
-                "message": "Session data validated and processed",
-                "session_id": session["id"],
-                "duration_seconds": session["duration_seconds"],
-                "received_at": datetime.now(timezone.utc).isoformat()
-            }
-        
-        # === POI DATA (has Parent and POI_Duration) ===
-        elif "Parent" in raw_data and "POI_Duration" in raw_data:
-            logger.info("📍 Detected: POI DATA - Validating...")
-            
-            # Validate with Pydantic model (will raise if invalid)
-            validated_poi = POIData(**raw_data)
-            
-            # Parse duration string to seconds (e.g., "1:30" → 90)
-            duration_seconds = _parse_duration_to_seconds(validated_poi.POI_Duration)
-            
-            # Get POI source (could be POI_Source or Source field)
-            poi_source = validated_poi.POI_Source or validated_poi.Source or ""
-            
-            # Build record for poi_visits table
-            poi_record = {
-                "poi_name": validated_poi.POI,
-                "parent_zone": validated_poi.Parent,
-                "poi_source": poi_source,
-                "duration_string": validated_poi.POI_Duration,
-                "duration_seconds": duration_seconds,
-                "received_at": datetime.now(timezone.utc).isoformat()
-            }
-            
-            try:
-                db.client.table("poi_visits").insert(poi_record).execute()
-                logger.info(f"✅ POI validated and stored: {validated_poi.Parent}/{validated_poi.POI} ({duration_seconds}s) [source: {poi_source}]")
-            except Exception as db_error:
-                logger.warning(f"Could not store POI in poi_visits: {db_error}")
-                # Fallback to simple_events
-                try:
-                    fallback_record = {
-                        "event_type": "POI_Visit",
-                        "received_at": datetime.now(timezone.utc).isoformat(),
-                        "data": poi_record
-                    }
-                    db.client.table("simple_events").insert(fallback_record).execute()
-                    logger.info("Stored POI in simple_events (fallback)")
-                except Exception as fallback_error:
-                    logger.warning(f"Fallback storage also failed: {fallback_error}")
-            
-            return {
-                "status": "success",
-                "data_type": "poi",
-                "message": "POI data validated and received",
-                "poi": validated_poi.POI,
-                "parent": validated_poi.Parent,
-                "duration": validated_poi.POI_Duration,
-                "duration_seconds": duration_seconds,
-                "received_at": datetime.now(timezone.utc).isoformat()
-            }
-        
-        # === VIEW DATA (has View and TotalDuration) ===
-        elif "View" in raw_data and "TotalDuration" in raw_data:
-            logger.info("👁️ Detected: VIEW DATA - Validating...")
-            
-            # Validate with Pydantic model (will raise if invalid)
-            validated_view = ViewData(**raw_data)
-            
-            # Parse duration string to seconds (e.g., "1:30" → 90)
-            duration_seconds = _parse_duration_to_seconds(validated_view.TotalDuration)
-            
-            # Build record for view_events table
+        if "ViewMode" in raw_data and "Duration" in raw_data:
+            data = ViewModePayload(**raw_data)
+            duration_seconds = _parse_duration_to_seconds(data.Duration)
             view_record = {
-                "view_name": validated_view.View,
-                "duration_string": validated_view.TotalDuration,
+                "view_name": data.ViewMode,
+                "duration_string": data.Duration,
                 "duration_seconds": duration_seconds,
                 "received_at": datetime.now(timezone.utc).isoformat()
             }
-            
             try:
                 db.client.table("view_events").insert(view_record).execute()
-                logger.info(f"✅ View validated and stored: {validated_view.View} ({duration_seconds}s)")
             except Exception as db_error:
                 logger.warning(f"Could not store View in view_events: {db_error}")
-                # Fallback to simple_events
-                try:
-                    fallback_record = {
-                        "event_type": "View_Change",
-                        "received_at": datetime.now(timezone.utc).isoformat(),
-                        "data": view_record
-                    }
-                    db.client.table("simple_events").insert(fallback_record).execute()
-                    logger.info("Stored View in simple_events (fallback)")
-                except Exception as fallback_error:
-                    logger.warning(f"Fallback storage also failed: {fallback_error}")
-            
-            return {
-                "status": "success",
-                "data_type": "view",
-                "message": "View data validated and received",
-                "view": validated_view.View,
-                "duration": validated_view.TotalDuration,
-                "duration_seconds": duration_seconds,
-                "received_at": datetime.now(timezone.utc).isoformat()
+            return {"status": "success", "event_type": "view_mode", "processed": True}
+
+        elif "POI" in raw_data and "Castegory" in raw_data:
+            data = POIPayload(**raw_data)
+            poi_record = {
+                "poi_name": data.POI,
+                "parent_zone": data.Castegory,
+                "poi_source": data.Click_Source,
+                "received_at": datetime.now(timezone.utc).isoformat(),
+                "event_time": data.Datetime
             }
-        
-        # === UNKNOWN DATA TYPE - REJECT ===
+            try:
+                db.client.table("poi_visits").insert(poi_record).execute()
+            except Exception as db_error:
+                logger.warning(f"Could not store POI in poi_visits: {db_error}")
+            return {"status": "success", "event_type": "poi", "processed": True}
+
+        elif "Name" in raw_data and "Sqft" in raw_data:
+            data = UnitSelectionPayload(**raw_data)
+            unit_record = {
+                "unit_name": data.Name,
+                "sqft": data.Sqft,
+                "unit_type": data.Type,
+                "received_at": datetime.now(timezone.utc).isoformat(),
+                "event_time": data.Datetime
+            }
+            try:
+                # Store in a generic/unit tracking table
+                db.client.table("simple_events").insert({
+                    "event_type": "Unit_Selection",
+                    "received_at": datetime.now(timezone.utc).isoformat(),
+                    "data": unit_record
+                }).execute()
+            except Exception as db_error:
+                logger.warning(f"Could not store Unit in metadata table: {db_error}")
+            return {"status": "success", "event_type": "unit_selection", "processed": True}
+
+        elif "session_id" in raw_data and "session_start" in raw_data:
+            data = SessionSummaryPayload(**raw_data)
+            # Process session data through service layer
+            try:
+                session = await session_service.process_unreal_session_data(
+                    session_start=data.session_start,
+                    session_end=data.session_end
+                )
+                return {"status": "success", "event_type": "session_summary", "processed": True, "session_id": session["id"]}
+            except Exception as e:
+                logger.warning(f"Could not process session: {e}")
+                return {"status": "error", "event_type": "session_summary", "processed": False}
+
         else:
             logger.warning(f"❌ Unknown data type received: {list(raw_data.keys())}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
                     "error": "Unknown data type",
-                    "message": "Data must contain either: (session_start + session_end), (Parent + POI_Duration), or (View + TotalDuration)",
+                    "message": "Payload did not match any known event footprint",
                     "received_keys": list(raw_data.keys())
                 }
             )

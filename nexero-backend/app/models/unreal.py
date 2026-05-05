@@ -20,155 +20,27 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, Field, field_validator
 
 
-class UnrealSessionData(BaseModel):
-    """
-    Session metadata sent from Unreal Engine when VR tour starts/ends.
-    
-    This model accepts timestamps as either strings or numbers for maximum
-    compatibility with different Unreal Engine HTTP libraries (VaRest, etc).
-    The backend will automatically convert these to proper datetime objects
-    for database storage.
-    
-    Attributes:
-        session_start: Unix timestamp as string or number (e.g., "1727653800" or 1727653800)
-        session_end: Unix timestamp as string or number (e.g., "1727654100" or 1727654100)
-        customer_id: Optional customer identifier
-        property_id: Optional property/listing identifier
-        
-    Examples from Unreal:
-        String format (test client):
-        {
-            "session_start": "1727653800",
-            "session_end": "1727654100",
-            "customer_id": "cust_12345",
-            "property_id": "prop_67890"
-        }
-        
-        Number format (VaRest plugin):
-        {
-            "session_start": 1727653800,
-            "session_end": 1727654100,
-            "customer_id": "cust_12345",
-            "property_id": "prop_67890"
-        }
-    """
-    
-    session_start: Union[str, int, float]  # Unix timestamp as string or number
-    session_end: Union[str, int, float]    # Unix timestamp as string or number
-    customer_id: Optional[str] = None
-    property_id: Optional[str] = None
-    
-    @field_validator('session_start', 'session_end', mode='before')
-    @classmethod
-    def convert_to_string(cls, v):
-        """Convert numeric timestamps to strings for consistent processing."""
-        if isinstance(v, (int, float)):
-            return str(int(v))  # Convert to string, removing decimal if present
-        return v
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "session_start": "1727653800",
-                "session_end": "1727654100",
-                "customer_id": "cust_12345",
-                "property_id": "prop_67890"
-            }
-        }
+class ViewModePayload(BaseModel):
+    ViewMode: str
+    Duration: str
 
+class POIPayload(BaseModel):
+    POI: str
+    Click_Source: str
+    Castegory: str
+    Datetime: str
 
-class POIData(BaseModel):
-    """
-    Point of Interest (POI) tracking data from Unreal Engine.
-    
-    Tracks when user visits different zones/locations in the 3D tour:
-    - Rooms (Kitchen, Bedroom, Living Room)
-    - Amenities (Park, Pool, Gym)
-    - Unit views
-    
-    Attributes:
-        POI: Name of the specific point of interest (can be empty string)
-        Parent: Parent category/zone (e.g., "Amenities", "Unit_A", "Floor_2")
-        POI_Duration: Time spent in this POI as string (e.g., "0:02" for 2 seconds)
-        POI_Source: Source of POI interaction (e.g., "Floating", "NavBar")
-        Source: Alternative name for POI_Source (backward compatibility)
-        session_id: Optional session identifier for linking
-        
-    Example from Unreal:
-        {
-            "POI": "Gym",
-            "POI_Source": "Floating",
-            "Parent": "Amenities",
-            "POI_Duration": "0:45"
-        }
-    """
-    
-    POI: str = ""  # Can be empty string
-    Parent: str
-    POI_Duration: str  # Format: "M:SS" like "0:02", "1:30"
-    POI_Source: Optional[str] = None  # "Floating", "NavBar", etc.
-    Source: Optional[str] = None  # Alternative field name
-    session_id: Optional[str] = None
-    
-    @field_validator('POI_Duration', mode='before')
-    @classmethod
-    def validate_duration(cls, v):
-        """Ensure duration is a string in expected format."""
-        if v is None:
-            return "0:00"
-        return str(v)
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "POI": "Kitchen",
-                "Parent": "Amenities",
-                "POI_Duration": "0:45"
-            }
-        }
+class UnitSelectionPayload(BaseModel):
+    Name: str
+    Sqft: str
+    Type: str
+    Datetime: str
 
-
-class ViewData(BaseModel):
-    """
-    View/Navigation tracking data from Unreal Engine.
-    
-    Tracks overall view changes and total time spent in major sections:
-    - Main property view
-    - Unit views
-    - Amenities section
-    
-    Attributes:
-        View: Name of the view/section (e.g., "Amenities", "Unit_Overview")
-        TotalDuration: Total time spent in this view as string (e.g., "0:13")
-        session_id: Optional session identifier for linking
-        
-    Example from Unreal:
-        {
-            "View": "Amenities",
-            "TotalDuration": "0:13"
-        }
-    """
-    
-    View: str
-    TotalDuration: str  # Format: "M:SS" like "0:13", "2:30"
-    session_id: Optional[str] = None
-    
-    @field_validator('TotalDuration', mode='before')
-    @classmethod
-    def validate_duration(cls, v):
-        """Ensure duration is a string in expected format."""
-        if v is None:
-            return "0:00"
-        return str(v)
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "View": "Amenities",
-                "TotalDuration": "1:30"
-            }
-        }
-
+class SessionSummaryPayload(BaseModel):
+    session_id: str
+    session_start: str
+    session_end: str
+    duration: str
 
 class TrackingEventFromUnreal(BaseModel):
     """
