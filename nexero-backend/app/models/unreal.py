@@ -28,13 +28,13 @@ class POIPayload(BaseModel):
     POI: str
     Click_Source: str
     Castegory: str
-    Datetime: str
+    Datetime: Optional[str] = None
 
 class UnitSelectionPayload(BaseModel):
     Name: str
     Sqft: str
     Type: str
-    Datetime: str
+    Datetime: Optional[str] = None
 
 class SessionSummaryPayload(BaseModel):
     session_id: str

@@ -44,6 +44,7 @@ from app.core.database import SupabaseDB
 
 # Configure logging
 logger = logging.getLogger(__name__)
+_LAST_EVENT_TIMESTAMPS: Dict[str, datetime] = {}
 
 
 def _safe_rows(response: Any) -> List[Dict[str, Any]]:
@@ -107,6 +108,98 @@ def _parse_duration_to_seconds(duration_str: str) -> int:
             return 0
     except (ValueError, TypeError):
         return 0
+
+
+def _normalize_duration_for_storage(duration_str: Optional[str]) -> str:
+    """Return a short duration string that fits the database column."""
+    if not duration_str:
+        return "0:00"
+
+    duration_seconds = _parse_duration_to_seconds(duration_str)
+    if duration_seconds <= 0:
+        return "0:00"
+
+    minutes, seconds = divmod(duration_seconds, 60)
+    if minutes >= 60:
+        hours, minutes = divmod(minutes, 60)
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+
+    return f"{minutes}:{seconds:02d}"
+
+
+def _seconds_to_duration_string(total_seconds: int) -> str:
+    """Format elapsed seconds as a short duration string."""
+    if total_seconds <= 0:
+        return "0:00"
+
+    minutes, seconds = divmod(total_seconds, 60)
+    if minutes >= 60:
+        hours, minutes = divmod(minutes, 60)
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+
+    return f"{minutes}:{seconds:02d}"
+
+
+def _parse_unreal_datetime(value: Optional[str]) -> Optional[datetime]:
+    """Parse Unreal timestamp strings into timezone-aware datetimes."""
+    if not value:
+        return None
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    try:
+        return datetime.fromtimestamp(float(text), tz=timezone.utc)
+    except (ValueError, TypeError):
+        pass
+
+    formats = [
+        "%d-%b-%Y, %I:%M:%S %p",
+        "%d-%b-%Y, %I:%M:%S%p",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%Y-%m-%dT%H:%M:%S%z",
+    ]
+
+    for fmt in formats:
+        try:
+            parsed = datetime.strptime(text, fmt)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed
+        except ValueError:
+            continue
+
+    return None
+
+
+def _elapsed_since_previous(key: str, current_value: Optional[str]) -> tuple[str, Optional[datetime]]:
+    """Derive elapsed time from the previous timestamp for the same event stream."""
+    current_timestamp = _parse_unreal_datetime(current_value)
+    if current_timestamp is None:
+        return _normalize_duration_for_storage(current_value), None
+
+    previous_timestamp = _LAST_EVENT_TIMESTAMPS.get(key)
+    _LAST_EVENT_TIMESTAMPS[key] = current_timestamp
+
+    if previous_timestamp is None:
+        return "0:00", current_timestamp
+
+    delta_seconds = int((current_timestamp - previous_timestamp).total_seconds())
+    return _seconds_to_duration_string(max(delta_seconds, 0)), current_timestamp
+
+
+def _has_non_empty_value(payload: Dict[str, Any]) -> bool:
+    """Return True when the payload contains at least one meaningful value."""
+    return any(value not in (None, "") for value in payload.values())
+
+
+def _request_stream_key(request: Request, stream_name: str) -> str:
+    """Create a stable in-process key for a client event stream."""
+    client_host = request.client.host if request.client else "unknown"
+    return f"{client_host}:{stream_name}"
 
 
 # Create router for Unreal Engine endpoints
@@ -174,20 +267,37 @@ async def receive_session_data(
     try:
         # Get raw JSON body
         raw_data = await request.json()
+
+        if not isinstance(raw_data, dict):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "error": "Invalid payload",
+                    "message": "Request body must be a JSON object",
+                },
+            )
         
         # Log the RAW data received
         logger.info("="*70)
         logger.info("📥 INCOMING DATA FROM UNREAL (universal endpoint):")
         logger.info(f"  Raw data: {raw_data}")
         logger.info("="*70)
+
+        # Unreal sends an empty startup packet before the real events begin.
+        if not raw_data or not _has_non_empty_value(raw_data):
+            logger.info("Ignoring empty Unreal payload")
+            return {"status": "ignored", "event_type": "empty_payload", "processed": False}
         
         if "ViewMode" in raw_data and "Duration" in raw_data:
             data = ViewModePayload(**raw_data)
-            duration_seconds = _parse_duration_to_seconds(data.Duration)
+            view_stream_key = _request_stream_key(request, "view_mode")
+            normalized_duration, current_timestamp = _elapsed_since_previous(view_stream_key, data.Duration)
+            duration_seconds = _parse_duration_to_seconds(normalized_duration)
             view_record = {
                 "view_name": data.ViewMode,
-                "duration_string": data.Duration,
+                "duration_string": normalized_duration,
                 "duration_seconds": duration_seconds,
+                "event_time": current_timestamp.isoformat() if current_timestamp else None,
                 "received_at": datetime.now(timezone.utc).isoformat()
             }
             try:
@@ -198,12 +308,16 @@ async def receive_session_data(
 
         elif "POI" in raw_data and "Castegory" in raw_data:
             data = POIPayload(**raw_data)
+            poi_stream_key = _request_stream_key(request, "poi")
+            normalized_poi_duration, current_timestamp = _elapsed_since_previous(poi_stream_key, raw_data.get("POI_Duration"))
             poi_record = {
                 "poi_name": data.POI,
                 "parent_zone": data.Castegory,
                 "poi_source": data.Click_Source,
                 "received_at": datetime.now(timezone.utc).isoformat(),
-                "event_time": data.Datetime
+                "event_time": data.Datetime or (current_timestamp.isoformat() if current_timestamp else datetime.now(timezone.utc).isoformat()),
+                "duration_string": normalized_poi_duration,
+                "duration_seconds": _parse_duration_to_seconds(normalized_poi_duration),
             }
             try:
                 db.client.table("poi_visits").insert(poi_record).execute()
@@ -218,7 +332,7 @@ async def receive_session_data(
                 "sqft": data.Sqft,
                 "unit_type": data.Type,
                 "received_at": datetime.now(timezone.utc).isoformat(),
-                "event_time": data.Datetime
+                "event_time": data.Datetime or datetime.now(timezone.utc).isoformat()
             }
             try:
                 # Store in a generic/unit tracking table
