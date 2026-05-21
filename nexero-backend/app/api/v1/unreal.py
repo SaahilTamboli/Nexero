@@ -34,6 +34,7 @@ from app.models.unreal import (
     POIPayload,
     UnitSelectionPayload,
     SessionSummaryPayload,
+    ConnectTypePayload,
     TrackingEventFromUnreal,
     TrackingBatchFromUnreal,
     FlexibleEventData
@@ -306,13 +307,13 @@ async def receive_session_data(
                 logger.warning(f"Could not store View in view_events: {db_error}")
             return {"status": "success", "event_type": "view_mode", "processed": True}
 
-        elif "POI" in raw_data and "Castegory" in raw_data:
+        elif "POI" in raw_data and ("Castegory" in raw_data or "Category" in raw_data):
             data = POIPayload(**raw_data)
             poi_stream_key = _request_stream_key(request, "poi")
             normalized_poi_duration, current_timestamp = _elapsed_since_previous(poi_stream_key, raw_data.get("POI_Duration"))
             poi_record = {
                 "poi_name": data.POI,
-                "parent_zone": data.Castegory,
+                "parent_zone": data.category_name,
                 "poi_source": data.Click_Source,
                 "received_at": datetime.now(timezone.utc).isoformat(),
                 "event_time": data.Datetime or (current_timestamp.isoformat() if current_timestamp else datetime.now(timezone.utc).isoformat()),
@@ -327,12 +328,17 @@ async def receive_session_data(
 
         elif "Name" in raw_data and "Sqft" in raw_data:
             data = UnitSelectionPayload(**raw_data)
+            unit_duration = data.Duration or "0:00"
+            unit_stream_key = _request_stream_key(request, "unit_selection")
+            normalized_unit_duration, current_timestamp = _elapsed_since_previous(unit_stream_key, unit_duration)
             unit_record = {
                 "unit_name": data.Name,
                 "sqft": data.Sqft,
                 "unit_type": data.Type,
                 "received_at": datetime.now(timezone.utc).isoformat(),
-                "event_time": data.Datetime or datetime.now(timezone.utc).isoformat()
+                "event_time": data.Datetime or (current_timestamp.isoformat() if current_timestamp else datetime.now(timezone.utc).isoformat()),
+                "duration_string": normalized_unit_duration,
+                "duration_seconds": _parse_duration_to_seconds(normalized_unit_duration),
             }
             try:
                 # Store in a generic/unit tracking table
@@ -345,7 +351,7 @@ async def receive_session_data(
                 logger.warning(f"Could not store Unit in metadata table: {db_error}")
             return {"status": "success", "event_type": "unit_selection", "processed": True}
 
-        elif "session_id" in raw_data and "session_start" in raw_data:
+        elif ("session_id" in raw_data or "sesh_id" in raw_data) and "session_start" in raw_data:
             data = SessionSummaryPayload(**raw_data)
             # Process session data through service layer
             try:
@@ -357,6 +363,23 @@ async def receive_session_data(
             except Exception as e:
                 logger.warning(f"Could not process session: {e}")
                 return {"status": "error", "event_type": "session_summary", "processed": False}
+
+        elif "Connect_Type" in raw_data:
+            data = ConnectTypePayload(**raw_data)
+            connect_record = {
+                "event_type": data.Connect_Type,
+                "sesh_id": data.sesh_id,
+                "received_at": datetime.now(timezone.utc).isoformat(),
+            }
+            try:
+                db.client.table("simple_events").insert({
+                    "event_type": f"Connect_{data.Connect_Type}",
+                    "received_at": datetime.now(timezone.utc).isoformat(),
+                    "data": connect_record
+                }).execute()
+            except Exception as db_error:
+                logger.warning(f"Could not store Connect event: {db_error}")
+            return {"status": "success", "event_type": "connect", "processed": True}
 
         else:
             logger.warning(f"❌ Unknown data type received: {list(raw_data.keys())}")

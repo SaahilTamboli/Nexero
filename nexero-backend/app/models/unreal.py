@@ -23,24 +23,48 @@ from pydantic import BaseModel, Field, field_validator
 class ViewModePayload(BaseModel):
     ViewMode: str
     Duration: str
+    sesh_id: Optional[str] = None
 
 class POIPayload(BaseModel):
     POI: str
     Click_Source: str
-    Castegory: str
+    Category: Optional[str] = None
+    Castegory: Optional[str] = None
+    POI_Duration: Optional[str] = None
+    sesh_id: Optional[str] = None
     Datetime: Optional[str] = None
+    
+    @property
+    def category_name(self) -> str:
+        """Return Category or fallback to Castegory for backward compatibility."""
+        return self.Category or self.Castegory or ""
 
 class UnitSelectionPayload(BaseModel):
     Name: str
     Sqft: str
     Type: str
+    Duration: Optional[str] = None
+    sesh_id: Optional[str] = None
     Datetime: Optional[str] = None
 
 class SessionSummaryPayload(BaseModel):
-    session_id: str
+    sesh_id: Optional[str] = None
+    session_id: Optional[str] = None
     session_start: str
     session_end: str
     duration: str
+    
+    @property
+    def session_id_value(self) -> str:
+        """Return sesh_id or fallback to session_id."""
+        return self.sesh_id or self.session_id or ""
+
+
+class ConnectTypePayload(BaseModel):
+    """New event type for site visits and other connection events."""
+    Connect_Type: str
+    sesh_id: Optional[str] = None
+
 
 class TrackingEventFromUnreal(BaseModel):
     """
